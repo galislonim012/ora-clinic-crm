@@ -14,7 +14,7 @@ export const getSession = cache(async () => {
 
   const { data: staffList } = await supabase
     .from("staff")
-    .select("id, full_name, role, specialty, is_active")
+    .select("id, full_name, role, specialty, is_active, onboarding_version")
     .order("created_at");
   const staff = (staffList ?? []) as Staff[];
   const me = staff.find((s) => s.id === user.id);

@@ -13,6 +13,7 @@ export type Staff = {
   role: StaffRole;
   specialty: Category | null;
   is_active: boolean;
+  onboarding_version?: number;
 };
 
 export type Client = {

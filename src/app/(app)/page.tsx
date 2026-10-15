@@ -113,7 +113,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 overflow-hidden rounded-2xl border border-line bg-surface shadow-card lg:grid-cols-4">
+      <div data-tour="dashboard-kpis" className="mb-6 grid grid-cols-2 overflow-hidden rounded-2xl border border-line bg-surface shadow-card lg:grid-cols-4">
         {kpis.map((k, i) => (
           <Link
             key={k.label}
@@ -148,7 +148,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       )}
 
       <div className="grid gap-5 lg:grid-cols-[1.25fr_1fr]">
-        <Panel title="פניות פתוחות לפי אחראית" action={<Link href="/calls" className="text-[13.5px] font-medium text-sage hover:underline">לכל הקריאות</Link>} bodyClass="p-0">
+        <Panel tour="dashboard-calls" title="פניות פתוחות לפי אחראית" action={<Link href="/calls" className="text-[13.5px] font-medium text-sage hover:underline">לכל הקריאות</Link>} bodyClass="p-0">
           {byAssignee.every((r) => r.news + r.progress === 0) ? (
             <EmptyState compact icon={PartyPopper} title="אין פניות פתוחות" text="כל הפניות טופלו. כשתיכנס פנייה חדשה היא תופיע כאן." />
           ) : (
@@ -185,6 +185,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </Panel>
 
         <Panel
+          tour="dashboard-unconfirmed"
           title={`${formatDay(tomorrow, { day: undefined, month: undefined })} · תורים שלא אושרו`}
           action={<Badge tone="purple">{unconfirmed.length}</Badge>}
           bodyClass="py-1 divide-y divide-line"
@@ -205,6 +206,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </Panel>
 
         <Panel
+          tour="dashboard-renewals"
           title={
             <span className="flex items-center gap-2">
               <RefreshCcw size={17} className="text-nude-ink" /> הגיע זמן לחזור

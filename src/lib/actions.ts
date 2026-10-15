@@ -277,6 +277,13 @@ export async function reassignCall(id: string, assignee_id: string): Promise<Act
   return { ok: true };
 }
 
+// ---------- הדרכת פתיחה ----------
+
+export async function completeOnboarding(version: number) {
+  const { supabase } = await getSession();
+  await supabase.rpc("complete_onboarding", { v: version });
+}
+
 // ---------- ניהול (מנהלת) ----------
 
 export async function updateStaff(id: string, patch: { role?: string; is_active?: boolean }): Promise<ActionResult> {

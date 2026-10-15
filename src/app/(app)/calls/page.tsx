@@ -81,7 +81,7 @@ export default async function CallsPage({ searchParams }: { searchParams: Promis
           <EmptyState icon={PartyPopper} title="אין קריאות כאן" text="כשתיפתח קריאה חדשה היא תופיע כאן, עם שעון שמראה כמה זמן היא מחכה." action={<CallDialogButton staff={staff} variant="secondary" />} />
         </div>
       ) : view === "board" ? (
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div data-tour="calls-board" className="grid gap-4 lg:grid-cols-3">
           {STATUSES.filter((s) => !statusFilter || s === statusFilter).map((s) => {
             const list = byStatus(s);
             return (
@@ -104,7 +104,7 @@ export default async function CallsPage({ searchParams }: { searchParams: Promis
           })}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div data-tour="calls-board" className="space-y-3">
           {[...calls]
             .sort((a, b) => STATUSES.indexOf(a.view.status) - STATUSES.indexOf(b.view.status) || a.view.created_at.localeCompare(b.view.created_at))
             .map(({ view, canEdit }) => (

@@ -62,7 +62,7 @@ export default async function AppointmentsPage({
         actions={<AppointmentDialogButton types={types} staff={staff} />}
       />
 
-      <div className="mb-5 flex flex-wrap items-center gap-2">
+      <div data-tour="appointments-toolbar" className="mb-5 flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-1">
           <Link href={link({ date: prevDate })} className={buttonClass("secondary", "sm")} aria-label="הקודם">
             <ChevronRight size={16} />

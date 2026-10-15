@@ -84,7 +84,7 @@ export default async function ClientCard({ params, searchParams }: { params: Pro
             )}
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-tour="client-actions">
           <AppointmentDialogButton types={types} staff={staff} client={picked} label="תור" />
           <CallDialogButton staff={staff} client={picked} label="קריאה" variant="secondary" />
           <a href={whatsappLink(client.phone)} target="_blank" rel="noopener noreferrer" className={buttonClass("secondary")}>
@@ -94,7 +94,7 @@ export default async function ClientCard({ params, searchParams }: { params: Pro
       </div>
 
       {isClinician && conditions.length > 0 && (
-        <div role="alert" className="mb-5 flex items-start gap-3 rounded-xl border border-st-red/25 bg-st-red-soft px-4 py-3 text-st-red">
+        <div role="alert" data-tour="client-medical-alert" className="mb-5 flex items-start gap-3 rounded-xl border border-st-red/25 bg-st-red-soft px-4 py-3 text-st-red">
           <ShieldAlert size={20} className="mt-0.5 shrink-0" />
           <div>
             <p className="font-semibold">התראה רפואית: {conditions.map((c) => conditionLabel[c] ?? c).join(" · ")}</p>
@@ -105,7 +105,7 @@ export default async function ClientCard({ params, searchParams }: { params: Pro
         </div>
       )}
 
-      <nav className="-mx-4 mb-5 overflow-x-auto border-b border-line px-4 md:mx-0 md:px-0" aria-label="לשוניות כרטיס">
+      <nav data-tour="client-tabs" className="-mx-4 mb-5 overflow-x-auto border-b border-line px-4 md:mx-0 md:px-0" aria-label="לשוניות כרטיס">
         <div className="flex gap-1">
           {tabs.map((t) => (
             <Link

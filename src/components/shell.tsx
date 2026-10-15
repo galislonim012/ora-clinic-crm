@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Home, Users, CalendarDays, MessagesSquare, Settings2, Search, LogOut, UserPlus, Eye } from "lucide-react";
+import { Home, Users, CalendarDays, MessagesSquare, Settings2, Search, LogOut, UserPlus, Eye, CircleHelp, GraduationCap } from "lucide-react";
+import { useTour } from "@/onboarding/tour-provider";
 import { logout, searchClients, setViewAs } from "@/lib/actions";
 import { formatPhone, normalizePhone } from "@/lib/format";
 import { roleLabel } from "@/lib/labels";
@@ -37,6 +38,7 @@ export function Shell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const tour = useTour();
   const nav = isAdmin ? [...NAV, { href: "/team", label: "צוות", icon: Settings2 }] : NAV;
 
   return (
@@ -79,6 +81,13 @@ export function Shell({
             <p className="text-[14px] font-semibold">{me.full_name}</p>
             <p className="text-[12.5px] text-ink-2">{roleLabel[me.role]}</p>
           </div>
+          <button
+            type="button"
+            onClick={tour.start}
+            className="flex h-9 w-full items-center gap-2 rounded-lg px-2 text-[14px] text-ink-2 transition hover:bg-surface/60 hover:text-ink"
+          >
+            <GraduationCap size={16} /> הפעלת ההדרכה מחדש
+          </button>
           <form action={logout}>
             <button className="flex h-9 w-full items-center gap-2 rounded-lg px-2 text-[14px] text-ink-2 transition hover:bg-surface/60 hover:text-ink">
               <LogOut size={16} /> יציאה
@@ -91,11 +100,21 @@ export function Shell({
         {/* סרגל עליון: חיפוש לפי טלפון זמין מכל מסך */}
         <header className="sticky top-0 z-30 border-b border-line bg-canvas/90 backdrop-blur-md">
           <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 md:px-8">
-            <Link href="/" className="grid size-9 shrink-0 place-items-center rounded-xl bg-sage font-bold text-white md:hidden" aria-label="מסך ראשי">
+            <Link href="/" className="hidden size-9 shrink-0 place-items-center rounded-xl bg-sage font-bold text-white sm:grid md:hidden" aria-label="מסך ראשי">
               א
             </Link>
             <PhoneSearch />
             {isAdmin && <ViewAsSelect staff={staff} viewAs={viewAs} />}
+            <button
+              type="button"
+              onClick={tour.start}
+              data-tour="help-button"
+              aria-label="הדרכה: איך עובדים עם המערכת"
+              title="הדרכה"
+              className="grid size-10 shrink-0 place-items-center rounded-lg text-ink-2 transition hover:bg-panel hover:text-ink active:scale-95"
+            >
+              <CircleHelp size={20} />
+            </button>
             <form action={logout} className="-me-2 md:hidden">
               <button aria-label="יציאה" className="grid size-10 place-items-center rounded-lg text-ink-2 hover:bg-panel">
                 <LogOut size={18} />
@@ -146,7 +165,7 @@ function ViewAsSelect({ staff, viewAs }: { staff: Staff[]; viewAs: string }) {
   const [pending, start] = useTransition();
   const router = useRouter();
   return (
-    <label className="relative flex shrink-0 items-center">
+    <label className="relative flex shrink-0 items-center" data-tour="view-as">
       <span className="sr-only">צפייה בתור</span>
       <Eye size={16} className="pointer-events-none absolute start-2.5 text-ink-2" />
       <select
@@ -212,7 +231,7 @@ function PhoneSearch() {
   }
 
   return (
-    <div ref={box} className="relative min-w-0 flex-1 md:max-w-md">
+    <div ref={box} className="relative min-w-0 flex-1 md:max-w-md" data-tour="phone-search">
       <form
         role="search"
         onSubmit={(e) => {

@@ -1,5 +1,7 @@
 import { Shell } from "@/components/shell";
 import { getSession } from "@/lib/session";
+import { TourProvider } from "@/onboarding/tour-provider";
+import { ONBOARDING_VERSION } from "@/onboarding/steps";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { supabase, me, staff, isAdmin, viewAs } = await getSession();
@@ -10,8 +12,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .eq("status", "new");
 
   return (
-    <Shell me={me} staff={staff} isAdmin={isAdmin} viewAs={viewAs} openCallsForMe={count ?? 0}>
-      {children}
-    </Shell>
+    <TourProvider autoStart={(me.onboarding_version ?? 0) < ONBOARDING_VERSION}>
+      <Shell me={me} staff={staff} isAdmin={isAdmin} viewAs={viewAs} openCallsForMe={count ?? 0}>
+        {children}
+      </Shell>
+    </TourProvider>
   );
 }

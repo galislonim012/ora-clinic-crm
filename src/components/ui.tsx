@@ -51,7 +51,9 @@ export function ButtonLink({
   size = "md",
   children,
   className,
+  tour,
 }: {
+  tour?: string;
   href: string;
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "md" | "sm";
@@ -59,7 +61,7 @@ export function ButtonLink({
   className?: string;
 }) {
   return (
-    <Link href={href} className={cn(buttonClass(variant, size), className)}>
+    <Link href={href} data-tour={tour} className={cn(buttonClass(variant, size), className)}>
       {children}
     </Link>
   );
@@ -83,7 +85,9 @@ export function Panel({
   children,
   className,
   bodyClass,
+  tour,
 }: {
+  tour?: string;
   title?: React.ReactNode;
   action?: React.ReactNode;
   children: React.ReactNode;
@@ -91,7 +95,7 @@ export function Panel({
   bodyClass?: string;
 }) {
   return (
-    <section className={cn("rounded-2xl border border-line bg-surface shadow-card", className)}>
+    <section data-tour={tour} className={cn("rounded-2xl border border-line bg-surface shadow-card", className)}>
       {title && (
         <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
           <h2 className="text-[15.5px] font-semibold text-ink">{title}</h2>

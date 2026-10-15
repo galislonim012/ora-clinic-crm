@@ -54,7 +54,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
         title="לקוחות"
         sub={`${rows.length} לקוחות${term ? ` שמתאימות לחיפוש ״${term}״` : ""}`}
         actions={
-          <ButtonLink href={`/clients/new${digits.length >= 9 ? `?phone=${digits}` : ""}`} variant="primary">
+          <ButtonLink tour="clients-new" href={`/clients/new${digits.length >= 9 ? `?phone=${digits}` : ""}`} variant="primary">
             <UserPlus size={16} /> לקוחה חדשה
           </ButtonLink>
         }
