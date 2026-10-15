@@ -1,26 +1,133 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* אורה CRM · צבעים לפי פרק 6 ב-PRD: רקע קרם, ירוק מרווה כהה, ניוד חם */
+@theme {
+  --font-sans: var(--font-heebo), system-ui, sans-serif;
+
+  --color-canvas: #fbf8f5;
+  --color-surface: #ffffff;
+  --color-panel: #f3eee8;
+  --color-line: #e7dfd6;
+  --color-line-strong: #d6cbbf;
+
+  --color-ink: #2b2b2b;
+  --color-ink-2: #574f48;
+  --color-ink-3: #786e65;
+
+  --color-sage: #3f5e5a;
+  --color-sage-hover: #344e4b;
+  --color-sage-soft: #e5edeb;
+  --color-sage-ink: #2f4744;
+
+  --color-nude: #c9a68a;
+  --color-nude-soft: #f5ebe2;
+  --color-nude-ink: #7f5c41;
+
+  --color-st-blue: #2f6aa0;
+  --color-st-blue-soft: #e6eff7;
+  --color-st-green: #2a7353;
+  --color-st-green-soft: #e3f2ea;
+  --color-st-gray: #5f5a55;
+  --color-st-gray-soft: #efebe7;
+  --color-st-orange: #a5571a;
+  --color-st-orange-soft: #fbecdd;
+  --color-st-red: #b52d43;
+  --color-st-red-soft: #fbe8eb;
+  --color-st-purple: #63509f;
+  --color-st-purple-soft: #eeeaf7;
+
+  --shadow-card: 0 1px 2px rgb(60 45 30 / 0.05), 0 4px 14px -6px rgb(60 45 30 / 0.10);
+  --shadow-pop: 0 2px 6px rgb(60 45 30 / 0.08), 0 18px 40px -12px rgb(60 45 30 / 0.28);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  font-feature-settings: "tnum" 1;
+}
+
+::selection {
+  background: var(--color-nude-soft);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-sage);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+input,
+select,
+textarea {
+  caret-color: var(--color-sage);
+  accent-color: var(--color-sage);
+}
+
+/* מספרי טלפון ושעות נשארים משמאל לימין גם בתוך טקסט עברי */
+.ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+}
+
+* {
+  scrollbar-color: var(--color-line-strong) transparent;
+  scrollbar-width: thin;
+}
+
+/* כניסה רכה של חלונות ותוכן */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+.animate-rise {
+  animation: rise 0.25s var(--ease-out-expo) both;
+}
+
+dialog[open] {
+  animation: rise 0.25s var(--ease-out-expo);
+}
+dialog::backdrop {
+  background: rgb(43 36 30 / 0.32);
+  animation: fade 0.2s ease-out;
+}
+
+/* שלד טעינה */
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg, #efe9e2 0%, #f7f2ec 50%, #efe9e2 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  dialog[open],
+  dialog::backdrop {
+    animation: none !important;
+    transition: none !important;
+  }
 }
