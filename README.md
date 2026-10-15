@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# אורה CRM
 
-## Getting Started
+מערכת ניהול לקוחות, תורים וקריאות שירות לקליניקת אורה – רפואה אסתטית.
+נבנתה עם Claude Code לפי ה-PRD: https://ora-clinic-prd.vercel.app
 
-First, run the development server:
+## איך נכנסים
+במסך הכניסה לוחצים **"כניסה כבודק (מנהלת)"**. נכנסים כרותם, המנהלת, בלי סיסמה. בסרגל העליון יש בורר **"צפייה בתור"**: הוא מראה את המסכים כפי שליאת או נטע רואות אותם. כל הנתונים במערכת מומצאים, ובמסך **צוות** אפשר לאפס אותם למצב ההתחלתי.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## מה יש במערכת
+- **לקוחות:** רשימה, חיפוש לפי טלפון (גם חלקי, עם או בלי מקף), יצירה ועריכה. אין כפילויות: טלפון קיים מעביר לכרטיס הקיים.
+- **כרטיס לקוחה:** התור הבא, היסטוריית תורים, קריאות, כרטיס רפואי וסדרות.
+- **תורים:** תצוגת יום ושבוע לפי מטפלת. הסטטוסים: עתידי, בוצע (עם סיכום) ובוטל (עם סיבה). אין חפיפה לאותה מטפלת ואין תורים מחוץ לשעות הפעילות.
+- **קריאות שירות:** הסטטוסים: חדשה, בטיפול ונסגרה (עם סיכום). כל קריאה משויכת לאחראית, ויש שעון המתנה צבעוני.
+- **מסך ראשי:** פניות פתוחות לפי אחראית, תורי היום, תורים שצריך לעדכן, תורי מחר שלא אושרו, ומי שהגיע זמנה לחזור.
+- **שלושה פיצ'רים מעבר למפרט:**
+  - כרטיס רפואי והתראה על התוויות נגד
+  - אישור הגעה ותזכורת בוואטסאפ בלחיצה
+  - מעקב סדרות וחידוש טיפול
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## טכנולוגיה
+Next.js 15 · TypeScript · Tailwind CSS · Supabase (Postgres + Auth + RLS) · Vercel
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+ההרשאות והכללים העסקיים נאכפים בבסיס הנתונים עצמו. ראו `supabase/migrations/`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## הרצה מקומית
+1. מעתיקים את `.env.example` ל-`.env.local` וממלאים ערכים.
+2. מריצים `npm install`.
+3. מריצים `npm run dev`.
 
-## Learn More
+הסודות לא נמצאים בקוד: הם נשמרים ב-`.env.local` (שלא עולה ל-GitHub) ובהגדרות של Vercel.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+הנחיות הפיתוח נמצאות ב-`CLAUDE.md`, ושלבי הבנייה ב-`PLAN.md`.
