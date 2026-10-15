@@ -25,11 +25,13 @@ export async function middleware(request: NextRequest) {
 
   if (!user && !isLogin) {
     const url = request.nextUrl.clone();
+    const back = request.nextUrl.pathname + request.nextUrl.search;
     url.pathname = "/login";
-    url.search = "";
+    url.search = back === "/" ? "" : `?next=${encodeURIComponent(back)}`;
     return NextResponse.redirect(url);
   }
-  if (user && isLogin) {
+  // מי שמחוברת ועוברת לדף הכניסה חוזרת למערכת (חוץ מהודעת "לא בצוות", שאז היא כבר נותקה)
+  if (user && isLogin && !request.nextUrl.searchParams.has("error")) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     url.search = "";

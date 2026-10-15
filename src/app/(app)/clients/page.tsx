@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, Search, UserPlus, UserRoundSearch } from "lucide-react";
 import { getSession } from "@/lib/session";
-import { formatDay, formatPhone, normalizePhone } from "@/lib/format";
+import { formatDay, formatPhone, normalizePhone, plural } from "@/lib/format";
 import { sourceLabel } from "@/lib/labels";
 import type { Client, ClientSource } from "@/lib/types";
 import { Badge, ButtonLink, EmptyState, PageHeader, cn, inlineSelectClass, inputClass } from "@/components/ui";
@@ -52,7 +52,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
     <div className="animate-rise">
       <PageHeader
         title="לקוחות"
-        sub={`${rows.length} לקוחות${term ? ` שמתאימות לחיפוש ״${term}״` : ""}`}
+        sub={`${plural(rows.length, "לקוחה אחת", "לקוחות")}${term ? ` שמתאימות לחיפוש ״${term}״` : ""}`}
         actions={
           <ButtonLink tour="clients-new" href={`/clients/new${digits.length >= 9 ? `?phone=${digits}` : ""}`} variant="primary">
             <UserPlus size={16} /> לקוחה חדשה
@@ -60,7 +60,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
         }
       />
 
-      <form className="mb-4 flex flex-wrap gap-2" role="search">
+      <form key={`${q}|${source}|${sort}`} className="mb-4 flex flex-wrap gap-2" role="search">
         <div className="relative min-w-[220px] flex-1">
           <Search size={16} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-ink-2" />
           <input name="q" defaultValue={q} placeholder="טלפון (גם חלקי, עם או בלי מקף) או שם" className={cn(inputClass, "ps-9")} aria-label="חיפוש" />
@@ -77,7 +77,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
           <option value="name">לפי שם</option>
           <option value="recent">הצטרפו לאחרונה</option>
         </select>
-        <button className="h-10 rounded-lg bg-ink px-4 text-[14.5px] font-medium text-white transition hover:bg-ink-2 active:scale-[0.97]">חיפוש</button>
+        <button className="h-11 rounded-lg bg-ink px-4 md:h-10 text-[14.5px] font-medium text-white transition hover:bg-ink-2 active:scale-[0.97]">חיפוש</button>
       </form>
 
       {rows.length === 0 ? (
@@ -96,7 +96,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
       ) : (
         <>
           {/* מחשב: טבלה */}
-          <div className="hidden overflow-hidden rounded-2xl border border-line bg-surface shadow-card md:block">
+          <div className="hidden overflow-x-auto rounded-2xl border border-line bg-surface shadow-card lg:block">
             <table className="w-full text-[14.5px]">
               <thead className="bg-panel/60 text-[12.5px] text-ink-2">
                 <tr>
@@ -125,11 +125,11 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                         {series && <Badge tone="sage">סדרה פעילה</Badge>}
                       </div>
                     </td>
-                    <td className="ltr px-3 py-3 text-ink-2">{formatPhone(c.phone)}</td>
-                    <td className="px-3 py-3">{next ? formatDay(next.starts_at) : <span className="text-ink-3">—</span>}</td>
-                    <td className="px-3 py-3 text-ink-2">{last ? formatDay(last.starts_at, { year: "2-digit" }) : <span className="text-ink-3">—</span>}</td>
-                    <td className="px-3 py-3">{openCalls ? <Badge tone="orange">{openCalls}</Badge> : <span className="text-ink-3">—</span>}</td>
-                    <td className="px-5 py-3 text-ink-2">{c.source ? sourceLabel[c.source] : "—"}</td>
+                    <td className="ltr whitespace-nowrap px-3 py-3 text-ink-2">{formatPhone(c.phone)}</td>
+                    <td className="px-3 py-3">{next ? formatDay(next.starts_at) : <span className="text-ink-3">-</span>}</td>
+                    <td className="px-3 py-3 text-ink-2">{last ? formatDay(last.starts_at, { year: "2-digit" }) : <span className="text-ink-3">-</span>}</td>
+                    <td className="px-3 py-3">{openCalls ? <Badge tone="orange">{openCalls}</Badge> : <span className="text-ink-3">-</span>}</td>
+                    <td className="px-5 py-3 text-ink-2">{c.source ? sourceLabel[c.source] : "-"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -137,16 +137,16 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
           </div>
 
           {/* טלפון: כרטיסים */}
-          <ul className="space-y-2 md:hidden">
+          <ul className="grid gap-2 md:grid-cols-2 lg:hidden">
             {rows.map(({ c, next, openCalls, series }) => (
               <li key={c.id}>
                 <Link href={`/clients/${c.id}`} className="block rounded-xl border border-line bg-surface p-4 shadow-card transition active:scale-[0.99]">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold">{c.full_name}</span>
-                    <span className="ltr text-[14px] text-ink-2">{formatPhone(c.phone)}</span>
+                    <span className="ltr shrink-0 whitespace-nowrap text-[14px] text-ink-2">{formatPhone(c.phone)}</span>
                   </div>
                   <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[13px] text-ink-2">
-                    <span>תור הבא: {next ? formatDay(next.starts_at) : "—"}</span>
+                    <span>תור הבא: {next ? formatDay(next.starts_at) : "-"}</span>
                     {alerts.has(c.id) && <Badge tone="red">רפואי</Badge>}
                     {c.no_show_count >= 2 && <Badge tone="orange">הבריזה {c.no_show_count}</Badge>}
                     {series && <Badge tone="sage">סדרה</Badge>}

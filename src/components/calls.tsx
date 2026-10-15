@@ -48,7 +48,7 @@ export function CallDialogButton({
         {!call && label}
       </button>
       <Dialog ref={ref} title={call ? "עריכת קריאה" : "קריאת שירות חדשה"}>
-        <CallForm key={key} staff={staff} client={client ?? null} call={call} onDone={() => ref.current?.close()} />
+        {key > 0 && <CallForm key={key} staff={staff} client={client ?? null} call={call} onDone={() => ref.current?.close()} />}
       </Dialog>
     </>
   );

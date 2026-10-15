@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Inbox, PartyPopper } from "lucide-react";
+import { Inbox, PartyPopper, X } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { loadCalls } from "@/lib/queries";
 import { callStatusLabel, callTone } from "@/lib/labels";
@@ -32,13 +32,13 @@ export default async function CallsPage({ searchParams }: { searchParams: Promis
     return `/calls?${q.toString()}`;
   };
   const chip = (active: boolean) =>
-    cn("rounded-full border px-3 py-1 text-[14px] transition", active ? "border-sage bg-sage-soft text-sage-ink" : "border-line-strong text-ink-2 hover:text-ink");
+    cn("inline-flex min-h-11 items-center rounded-full border px-3.5 text-[14px] transition md:min-h-8", active ? "border-sage bg-sage-soft text-sage-ink" : "border-line-strong text-ink-2 hover:text-ink");
 
   return (
     <div className="animate-rise">
       <PageHeader
         title="קריאות שירות"
-        sub={assignee ? `האחראית: ${staff.find((s) => s.id === assignee)?.full_name}` : "כל הקריאות של הצוות"}
+        sub={`${statusFilter ? `קריאות ב״${callStatusLabel[statusFilter]}״` : "כל הקריאות"} · ${assignee ? `האחראית: ${staff.find((s) => s.id === assignee)?.full_name}` : "כל הצוות"}`}
         actions={<CallDialogButton staff={staff} />}
       />
 
@@ -67,9 +67,14 @@ export default async function CallsPage({ searchParams }: { searchParams: Promis
               ))}
           </>
         )}
+        {statusFilter && (
+          <Link href={link({ status: undefined })} className={cn(chip(true), "inline-flex items-center gap-1")} aria-label="ביטול הסינון לפי סטטוס">
+            רק ״{callStatusLabel[statusFilter]}״ <X size={14} />
+          </Link>
+        )}
         <div className="ms-auto flex rounded-lg border border-line-strong bg-surface p-0.5 text-[14px]">
           {(["board", "list"] as const).map((v) => (
-            <Link key={v} href={link({ view: v === "board" ? undefined : v })} className={cn("rounded-md px-3 py-1 transition", view === v ? "bg-sage text-white" : "text-ink-2 hover:text-ink")}>
+            <Link key={v} href={link({ view: v === "board" ? undefined : v })} className={cn("inline-flex min-h-10 items-center rounded-md px-3 transition md:min-h-7", view === v ? "bg-sage text-white" : "text-ink-2 hover:text-ink")}>
               {v === "board" ? "לוח" : "רשימה"}
             </Link>
           ))}

@@ -14,8 +14,9 @@ export function normalizePhone(input: string) {
   return d;
 }
 
+// נייד (05) ו-07: 10 ספרות. נייח (02/03/04/08/09): 9 ספרות. אותו כלל כמו בבסיס הנתונים
 export function isValidPhone(input: string) {
-  return /^0\d{8,9}$/.test(normalizePhone(input));
+  return /^(0[57]\d{8}|0[2-489]\d{7})$/.test(normalizePhone(input));
 }
 
 // תאריך מקומי (ישראל) של רגע נתון, בפורמט YYYY-MM-DD
@@ -77,11 +78,22 @@ export function dayOfWeek(date: string) {
   return new Date(`${date}T12:00:00Z`).getUTCDay(); // 0 = ראשון
 }
 
-// יום העבודה הבא (ו׳-ש׳ לא נחשבים, כי בשישי עובדים רק בבוקר)
+// יום העבודה הבא. שישי נחשב (09:00-13:00), שבת לא
 export function nextBusinessDay(date = israelDate()) {
   let d = addDays(date, 1);
-  while (dayOfWeek(d) === 5 || dayOfWeek(d) === 6) d = addDays(d, 1);
+  while (dayOfWeek(d) === 6) d = addDays(d, 1);
   return d;
+}
+
+export function isValidDate(date: string | undefined): date is string {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const d = new Date(`${date}T12:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === date;
+}
+
+// "לקוחה אחת" / "3 לקוחות"
+export function plural(n: number, one: string, many: string) {
+  return n === 1 ? one : `${n} ${many}`;
 }
 
 export function startOfWeek(date: string) {

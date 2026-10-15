@@ -18,7 +18,10 @@ export const getSession = cache(async () => {
     .order("created_at");
   const staff = (staffList ?? []) as Staff[];
   const me = staff.find((s) => s.id === user.id);
-  if (!me || !me.is_active) redirect("/login?error=not_staff");
+  if (!me || !me.is_active) {
+    await supabase.auth.signOut({ scope: "local" });
+    redirect("/login?error=not_staff");
+  }
 
   const isAdmin = me.role === "admin";
   const store = await cookies();
@@ -26,11 +29,20 @@ export const getSession = cache(async () => {
   // מנהלת יכולה לצפות בתור כל אחת. מטפלת תמיד רואה את עצמה כברירת מחדל.
   const viewAs = isAdmin ? (raw === "all" || staff.some((s) => s.id === raw) ? raw : "all") : "all";
 
-  return { supabase, me, staff, isAdmin, isClinician: me.role !== "reception", viewAs };
+  // "צפייה בתור": המסכים מוצגים בהרשאות של המטפלת שנבחרה (רק תצוגה, השרת עדיין מזהה את המנהלת)
+  const viewer = isAdmin && viewAs !== "all" ? staff.find((s) => s.id === viewAs) ?? me : me;
+  const ui = {
+    id: viewer.id,
+    role: viewer.role,
+    isAdmin: viewer.role === "admin",
+    isClinician: viewer.role !== "reception",
+  };
+
+  return { supabase, me, staff, isAdmin, isClinician: me.role !== "reception", viewAs, ui };
 });
 
 export function staffName(staff: Staff[], id: string | null | undefined) {
-  return staff.find((s) => s.id === id)?.full_name ?? "—";
+  return staff.find((s) => s.id === id)?.full_name ?? "-";
 }
 
 export function firstName(fullName: string) {

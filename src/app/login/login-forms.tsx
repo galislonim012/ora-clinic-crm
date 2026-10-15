@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { demoLogin, passwordLogin } from "@/lib/actions";
 import { buttonClass, inputClass, Label, cn } from "@/components/ui";
 
-export function LoginForms() {
+export function LoginForms({ next }: { next?: string }) {
   const [demoPending, startDemo] = useTransition();
   const [state, formAction, pending] = useActionState(passwordLogin, null);
   const [showStaff, setShowStaff] = useState(false);
@@ -21,7 +21,7 @@ export function LoginForms() {
           disabled={demoPending}
           onClick={() =>
             startDemo(async () => {
-              const r = await demoLogin();
+              const r = await demoLogin(next);
               if (r && !r.ok) toast.error(r.error);
             })
           }
@@ -38,6 +38,7 @@ export function LoginForms() {
         </button>
       ) : (
         <form action={formAction} className="animate-rise space-y-3 rounded-2xl border border-line bg-surface p-5 shadow-card">
+          {next && <input type="hidden" name="next" value={next} />}
           <div>
             <Label htmlFor="email">מייל</Label>
             <input id="email" name="email" type="email" required autoComplete="username" dir="ltr" className={inputClass} />

@@ -2,8 +2,8 @@ import { LoginForms } from "./login-forms";
 
 export const metadata = { title: "כניסה" };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error } = await searchParams;
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; next?: string }> }) {
+  const { error, next } = await searchParams;
   return (
     <main className="grid min-h-dvh place-items-center px-4 py-10">
       <div className="w-full max-w-[400px] animate-rise">
@@ -19,7 +19,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             החשבון הזה לא שייך לצוות הקליניקה.
           </p>
         )}
-        <LoginForms />
+        <LoginForms next={next} />
       </div>
     </main>
   );

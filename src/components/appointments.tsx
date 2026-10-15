@@ -42,7 +42,7 @@ export function AppointmentDialogButton({
   iconOnly?: boolean;
 }) {
   const ref = useRef<DialogHandle>(null);
-  const [key, setKey] = useState(0);
+  const [key, setKey] = useState(0); // 0 = עוד לא נפתח: הטופס לא נטען ולא פונה לשרת
   return (
     <>
       <button
@@ -59,7 +59,9 @@ export function AppointmentDialogButton({
         {!iconOnly && label}
       </button>
       <Dialog ref={ref} title={appt ? "עריכת תור" : "קביעת תור"}>
-        <AppointmentForm key={key} types={types} staff={staff} client={client ?? null} appt={appt} onDone={() => ref.current?.close()} />
+        {key > 0 && (
+          <AppointmentForm key={key} types={types} staff={staff} client={client ?? null} appt={appt} onDone={() => ref.current?.close()} />
+        )}
       </Dialog>
     </>
   );
@@ -88,6 +90,8 @@ function AppointmentForm({
   const [staffId, setStaffId] = useState(appt?.staff_id ?? "");
   const [ctx, setCtx] = useState<BookingContext | null>(null);
   const [ack, setAck] = useState(false);
+  const [packageId, setPackageId] = useState(appt?.package_id ?? "");
+  const [packageTouched, setPackageTouched] = useState(Boolean(appt));
 
   useEffect(() => {
     if (!client) return setCtx(null);
@@ -102,7 +106,13 @@ function AppointmentForm({
     () => (type && ctx ? ctx.conditions.filter((c) => type.contraindications.includes(c)) : []),
     [type, ctx],
   );
-  const packages = ctx?.packages.filter((p) => p.treatment_type_id === typeId) ?? [];
+  const packages = useMemo(() => ctx?.packages.filter((p) => p.treatment_type_id === typeId) ?? [], [ctx, typeId]);
+
+  // סדרה פעילה מאותו סוג טיפול נבחרת לבד, כדי שהספירה תתקדם
+  useEffect(() => {
+    if (packageTouched) return;
+    setPackageId(packages[0]?.id ?? "");
+  }, [packages, packageTouched]);
 
   return (
     <form
@@ -183,7 +193,17 @@ function AppointmentForm({
         </div>
         <div>
           <Label htmlFor="package_id">שייך לסדרה</Label>
-          <select id="package_id" name="package_id" defaultValue={appt?.package_id ?? (packages[0]?.id ?? "")} className={inputClass} disabled={!packages.length && !appt?.package_id}>
+          <select
+            id="package_id"
+            name="package_id"
+            value={packageId}
+            onChange={(e) => {
+              setPackageId(e.target.value);
+              setPackageTouched(true);
+            }}
+            className={inputClass}
+            disabled={!packages.length && !appt?.package_id}
+          >
             <option value="">לא</option>
             {packages.map((p) => (
               <option key={p.id} value={p.id}>
@@ -355,8 +375,8 @@ export function AppointmentItem({
             {a.client_name} · {a.type_name}
           </p>
           <div>
-            <Label htmlFor={`summary-${a.id}`}>סיכום הטיפול</Label>
-            <textarea id={`summary-${a.id}`} name="summary" placeholder="לדוגמה: מצח + קמטי צחוק, 20 יחידות. העור הגיב טוב." className={textareaClass} />
+            <Label htmlFor={`summary-${a.id}`}>סיכום הטיפול (חובה)</Label>
+            <textarea id={`summary-${a.id}`} name="summary" required minLength={2} placeholder="לדוגמה: מצח + קמטי צחוק, 20 יחידות. העור הגיב טוב." className={textareaClass} />
           </div>
           <div className="flex justify-end gap-2">
             <button disabled={pending} className={buttonClass("primary")}>

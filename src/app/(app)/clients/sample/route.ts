@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// כרטיס לקוחה לדוגמה להדרכה: מיכל לוי (התראה רפואית וסדרה), ואם אינה קיימת – הלקוחה הראשונה
+// כרטיס לקוחה לדוגמה להדרכה: מיכל לוי (התראה רפואית וסדרה), ואם אינה קיימת - הלקוחה הראשונה
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { data: preferred } = await supabase.from("clients").select("id").eq("phone", "0541234567").maybeSingle();

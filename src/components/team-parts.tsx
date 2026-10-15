@@ -57,7 +57,7 @@ export function TreatmentTypeRow({ t }: { t: TreatmentType }) {
       </label>
       <label className="flex items-center gap-1.5 text-[13px] text-ink-2">
         חידוש
-        <input name="renewal_days" type="number" min={1} defaultValue={t.renewal_days ?? ""} placeholder="—" className={cn(inputClass, "h-8 w-16 px-2 text-[14px]")} />
+        <input name="renewal_days" type="number" min={1} defaultValue={t.renewal_days ?? ""} placeholder="-" className={cn(inputClass, "h-8 w-16 px-2 text-[14px]")} />
         ימים
       </label>
       <button disabled={pending} className={buttonClass("secondary", "sm")}>

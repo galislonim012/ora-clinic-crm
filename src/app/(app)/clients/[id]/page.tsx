@@ -29,7 +29,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function ClientCard({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string }> }) {
   const { id } = await params;
   const { tab: rawTab } = await searchParams;
-  const { supabase, staff, isAdmin, isClinician } = await getSession();
+  const { supabase, staff, ui } = await getSession();
+  const isAdmin = ui.isAdmin;
+  const isClinician = ui.isClinician;
 
   const { data: clientRow } = await supabase.from("clients").select("*").eq("id", id).maybeSingle();
   if (!clientRow) notFound();

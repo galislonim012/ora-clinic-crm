@@ -20,6 +20,7 @@ function explain(error: PgError, fallback = "לא נשמר. נסי שוב בעו
   if (msg.includes("DONE_BEFORE_START")) return "אפשר לסמן ״בוצע״ רק אחרי שהתור התחיל";
   if (msg.includes("closed_needs_resolution")) return "כדי לסגור קריאה צריך לכתוב משפט סיכום";
   if (msg.includes("cancel_reason_matches")) return "כדי לבטל תור צריך לבחור סיבה";
+  if (msg.includes("done_needs_summary")) return "כדי לסמן ״בוצע״ צריך לכתוב סיכום טיפול";
   if (msg.includes("phone_check") || msg.includes("clients_phone_check")) return "מספר הטלפון לא תקין";
   if (error.code === "42501") return "אין לך הרשאה לפעולה הזו";
   return fallback;
@@ -38,26 +39,31 @@ function refresh() {
 
 // ---------- כניסה ויציאה ----------
 
-export async function demoLogin(): Promise<ActionResult> {
+export async function demoLogin(next?: string): Promise<ActionResult> {
   const email = process.env.DEMO_ADMIN_EMAIL;
   const password = process.env.DEMO_ADMIN_PASSWORD;
   if (!email || !password) return { ok: false, error: "כניסת הבודק לא הוגדרה בשרת" };
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { ok: false, error: "הכניסה נכשלה. נסי שוב" };
-  redirect("/");
+  redirect(safeNext(next));
+}
+
+// לאן לחזור אחרי כניסה: רק נתיב פנימי, כדי שאי אפשר יהיה להפנות לאתר חיצוני
+function safeNext(next: string | null | undefined) {
+  return next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/login") ? next : "/";
 }
 
 export async function passwordLogin(_: unknown, fd: FormData): Promise<ActionResult> {
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email: str(fd, "email"), password: str(fd, "password") });
   if (error) return { ok: false, error: "המייל או הסיסמה לא נכונים" };
-  redirect("/");
+  redirect(safeNext(str(fd, "next")));
 }
 
 export async function logout() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: "local" }); // רק המכשיר הזה, לא בודקים אחרים
   const store = await cookies();
   store.delete(VIEW_AS_COOKIE);
   redirect("/login");
@@ -106,7 +112,7 @@ export async function saveClient(fd: FormData): Promise<ActionResult> {
   const full_name = str(fd, "full_name");
   const phone = normalizePhone(str(fd, "phone"));
   if (full_name.length < 2) return { ok: false, error: "צריך שם מלא" };
-  if (!isValidPhone(phone)) return { ok: false, error: "מספר הטלפון לא תקין. לדוגמה: 054-123-4567" };
+  if (!isValidPhone(phone)) return { ok: false, error: "מספר הטלפון לא תקין. נייד: 10 ספרות (054-123-4567), נייח: 9 ספרות (09-774-5120)" };
 
   const row = {
     full_name,
@@ -215,7 +221,10 @@ export async function setAppointmentStatus(
   const { supabase } = await getSession();
   if (status === "cancelled" && !extra.cancel_reason) return { ok: false, error: "בחרי סיבת ביטול" };
   const patch: Record<string, unknown> = { status, cancel_reason: status === "cancelled" ? extra.cancel_reason : null };
-  if (status === "done") patch.summary = extra.summary?.trim() || null;
+  if (status === "done") {
+    if (!extra.summary?.trim()) return { ok: false, error: "כדי לסמן ״בוצע״ צריך לכתוב סיכום טיפול" };
+    patch.summary = extra.summary.trim();
+  }
   const { data, error } = await supabase.from("appointments").update(patch).eq("id", id).select("id");
   if (error) return { ok: false, error: explain(error) };
   if (!data?.length) return { ok: false, error: NO_ROWS };
@@ -286,10 +295,15 @@ export async function completeOnboarding(version: number) {
 
 // ---------- ניהול (מנהלת) ----------
 
-export async function updateStaff(id: string, patch: { role?: string; is_active?: boolean }): Promise<ActionResult> {
+export async function updateStaff(id: string, input: { role?: string; is_active?: boolean }): Promise<ActionResult> {
   const { supabase, isAdmin, me } = await getSession();
   if (!isAdmin) return { ok: false, error: "רק מנהלת יכולה לשנות הרשאות" };
   if (id === me.id) return { ok: false, error: "אי אפשר לשנות את ההרשאה של עצמך" };
+  // רק שני השדות האלה, בלי שום שדה אחר שנשלח מהדפדפן
+  const patch: { role?: string; is_active?: boolean } = {};
+  if (input.role && ["admin", "therapist", "reception"].includes(input.role)) patch.role = input.role;
+  if (typeof input.is_active === "boolean") patch.is_active = input.is_active;
+  if (!Object.keys(patch).length) return { ok: false, error: "אין מה לעדכן" };
   const { data, error } = await supabase.from("staff").update(patch).eq("id", id).select("id");
   if (error) return { ok: false, error: explain(error) };
   if (!data?.length) return { ok: false, error: NO_ROWS };

@@ -174,7 +174,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                       <td className={cn("px-2 py-3 font-semibold tabular-nums", news ? "text-st-orange" : "text-ink-3")}>{news}</td>
                       <td className="px-2 py-3 tabular-nums text-ink-2">{progress}</td>
                       <td className="px-5 py-3">
-                        {oldest ? <Badge tone={mins <= 30 ? "green" : mins <= 60 ? "orange" : "red"}>{elapsed(oldest)}</Badge> : <span className="text-ink-3">—</span>}
+                        {oldest ? <Badge tone={mins <= 30 ? "green" : mins <= 60 ? "orange" : "red"}>{elapsed(oldest)}</Badge> : <span className="text-ink-3">-</span>}
                       </td>
                     </tr>
                   );
@@ -221,7 +221,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             renewals.map((r) => {
               const late = r.due < today;
               const first = r.clients?.full_name.split(" ")[0];
-              const text = `היי ${first}, עברו כמה חודשים מה${r.treatment_types?.name.split(" ")[0]} האחרון שלך בקליניקת אורה 💛 רוצה שנקבע תור לחידוש?`;
+              const text = `היי ${first}, עברו כמה חודשים מהטיפול האחרון שלך בקליניקת אורה (${r.treatment_types?.name}) 💛 רוצה שנקבע תור לחידוש?`;
               return (
                 <div key={`${r.client_id}${r.treatment_type_id}`} className="flex flex-wrap items-center gap-3 py-3">
                   <div className="min-w-0 flex-1">
@@ -230,7 +230,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                     </Link>
                     <p className="text-[13px] text-ink-2">
                       {r.treatment_types?.name} · טיפול אחרון {formatDay(r.starts_at)} ·{" "}
-                      <span className={late ? "font-medium text-st-red" : ""}>{late ? `חידוש עבר ב-${formatDay(r.due)}` : `חידוש ב-${formatDay(r.due)}`}</span>
+                      <span className={late ? "font-medium text-st-red" : ""}>{late ? `מועד החידוש עבר (${formatDay(r.due)})` : `מועד חידוש: ${formatDay(r.due)}`}</span>
                     </p>
                   </div>
                   <a href={whatsappLink(r.clients?.phone ?? "", text)} target="_blank" rel="noopener noreferrer" className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-line-strong px-3 text-[13.5px] font-medium transition hover:-translate-y-px hover:border-sage/50 hover:bg-sage-soft/40 active:scale-[0.97]">

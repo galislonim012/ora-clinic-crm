@@ -26,6 +26,7 @@ export function Shell({
   me,
   staff,
   isAdmin,
+  showTeam,
   viewAs,
   openCallsForMe,
   children,
@@ -33,13 +34,14 @@ export function Shell({
   me: Staff;
   staff: Staff[];
   isAdmin: boolean;
+  showTeam: boolean;
   viewAs: string;
   openCallsForMe: number;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const tour = useTour();
-  const nav = isAdmin ? [...NAV, { href: "/team", label: "צוות", icon: Settings2 }] : NAV;
+  const nav = showTeam ? [...NAV, { href: "/team", label: "צוות", icon: Settings2 }] : NAV;
 
   return (
     <div className="min-h-dvh md:grid md:grid-cols-[232px_1fr]">
@@ -195,25 +197,25 @@ function ViewAsSelect({ staff, viewAs }: { staff: Staff[]; viewAs: string }) {
 function PhoneSearch() {
   const router = useRouter();
   const [q, setQ] = useState("");
-  const [results, setResults] = useState<{ id: string; full_name: string; phone: string }[]>([]);
+  // התוצאות שמורות יחד עם הטקסט שבשבילו הן חזרו, כדי שלא נפתח כרטיס של חיפוש קודם
+  const [found, setFound] = useState<{ term: string; items: { id: string; full_name: string; phone: string }[] }>({ term: "", items: [] });
+  const term = q.trim();
+  const fresh = found.term === term;
+  const results = fresh ? found.items : [];
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const box = useRef<HTMLDivElement>(null);
   const reqId = useRef(0);
 
   useEffect(() => {
-    const term = q.trim();
-    if (term.length < 2) {
-      setResults([]);
-      return;
-    }
+    if (term.length < 2) return;
     const id = ++reqId.current;
     const t = setTimeout(async () => {
       const r = await searchClients(term);
-      if (id === reqId.current) setResults(r);
+      if (id === reqId.current) setFound({ term, items: r });
     }, 180);
     return () => clearTimeout(t);
-  }, [q]);
+  }, [term]);
 
   useEffect(() => {
     const close = (e: MouseEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
@@ -236,9 +238,10 @@ function PhoneSearch() {
         role="search"
         onSubmit={(e) => {
           e.preventDefault();
-          if (active >= 0 && results[active]) return go(`/clients/${results[active].id}`);
-          if (results.length === 1) return go(`/clients/${results[0].id}`);
-          if (q.trim()) go(`/clients?q=${encodeURIComponent(q.trim())}`);
+          // Enter פותח כרטיס רק כשהתוצאות שייכות בדיוק למה שכתוב עכשיו בשדה
+          if (fresh && active >= 0 && results[active]) return go(`/clients/${results[active].id}`);
+          if (fresh && results.length === 1) return go(`/clients/${results[0].id}`);
+          if (term) go(`/clients?q=${encodeURIComponent(term)}`);
         }}
       >
         <Search size={17} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-ink-2" />
@@ -261,21 +264,22 @@ function PhoneSearch() {
           className="h-10 w-full rounded-xl border border-line-strong bg-surface ps-9 pe-3 text-[15px] placeholder:text-ink-3 transition focus:border-sage focus:outline-none focus:ring-3 focus:ring-sage/15"
         />
       </form>
-      {open && q.trim().length >= 2 && (
-        <div className="animate-rise absolute inset-x-0 top-12 z-40 overflow-hidden rounded-xl border border-line bg-surface shadow-pop">
+      {open && term.length >= 2 && (
+        <div className="animate-rise fixed inset-x-3 top-[60px] z-40 overflow-hidden rounded-xl border border-line bg-surface shadow-pop md:absolute md:inset-x-0 md:top-12">
+          {!fresh && <p className="px-4 py-3 text-[14px] text-ink-2">מחפשת…</p>}
           {results.map((r, i) => (
             <button
               key={r.id}
               type="button"
               onMouseEnter={() => setActive(i)}
               onClick={() => go(`/clients/${r.id}`)}
-              className={cn("flex w-full items-center justify-between gap-3 px-4 py-2.5 text-start text-[14.5px]", i === active && "bg-sage-soft/60")}
+              className={cn("flex min-h-11 w-full items-center justify-between gap-3 px-4 py-2.5 text-start text-[14.5px]", i === active && "bg-sage-soft/60")}
             >
-              <span className="font-medium">{r.full_name}</span>
-              <span className="ltr text-ink-2">{formatPhone(r.phone)}</span>
+              <span className="truncate font-medium">{r.full_name}</span>
+              <span className="ltr shrink-0 whitespace-nowrap text-ink-2">{formatPhone(r.phone)}</span>
             </button>
           ))}
-          {results.length === 0 && (
+          {fresh && results.length === 0 && (
             <div className="px-4 py-3 text-[14px] text-ink-2">
               {looksLikePhone ? (
                 <>

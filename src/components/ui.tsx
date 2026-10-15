@@ -37,8 +37,8 @@ export const btn = {
   secondary: "bg-surface text-ink border border-line-strong hover:border-sage/50 hover:bg-sage-soft/40 hover:-translate-y-px",
   ghost: "text-ink-2 hover:bg-panel hover:text-ink",
   danger: "bg-surface text-st-red border border-st-red/30 hover:bg-st-red-soft",
-  md: "h-10 px-4 text-[14.5px]",
-  sm: "h-8 px-3 text-[13.5px]",
+  md: "h-11 px-4 text-[14.5px] md:h-10",
+  sm: "h-11 px-3.5 text-[14px] md:h-8 md:px-3 md:text-[13.5px]",
 };
 
 export function buttonClass(variant: "primary" | "secondary" | "ghost" | "danger" = "secondary", size: "md" | "sm" = "md") {
@@ -133,9 +133,9 @@ export function EmptyState({
 }
 
 export const inputClass =
-  "h-10 w-full rounded-lg border border-line-strong bg-surface px-3 text-[15px] text-ink placeholder:text-ink-3 transition-[border,box-shadow] duration-150 focus:border-sage focus:outline-none focus:ring-3 focus:ring-sage/15 aria-[invalid=true]:border-st-red aria-[invalid=true]:ring-st-red/15";
+  "h-11 w-full rounded-lg border border-line-strong md:h-10 bg-surface px-3 text-[15px] text-ink placeholder:text-ink-3 transition-[border,box-shadow] duration-150 focus:border-sage focus:outline-none focus:ring-3 focus:ring-sage/15 aria-[invalid=true]:border-st-red aria-[invalid=true]:ring-st-red/15";
 
-export const textareaClass = inputClass.replace("h-10", "min-h-20 py-2");
+export const textareaClass = inputClass.replace("h-11", "min-h-20 py-2").replace("md:h-10", "");
 
 // שדה בגודל התוכן (למסננים בשורה)
 export const inlineSelectClass = inputClass.replace("w-full", "w-auto");

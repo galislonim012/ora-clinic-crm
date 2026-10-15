@@ -30,11 +30,11 @@ export function ClientPicker({ value, onChange }: { value: PickedClient | null; 
 
   if (value) {
     return (
-      <div className="flex h-10 items-center justify-between rounded-lg border border-sage/40 bg-sage-soft/50 px-3">
+      <div className="flex min-h-11 items-center justify-between rounded-lg border border-sage/40 bg-sage-soft/50 px-3">
         <span>
           <b className="font-semibold">{value.full_name}</b> <span className="ltr text-ink-2">{formatPhone(value.phone)}</span>
         </span>
-        <button type="button" onClick={() => onChange(null)} aria-label="החלפת לקוחה" className="grid size-7 place-items-center rounded-md text-ink-2 hover:bg-surface">
+        <button type="button" onClick={() => onChange(null)} aria-label="החלפת לקוחה" className="-me-2 grid size-10 place-items-center rounded-md text-ink-2 hover:bg-surface">
           <X size={16} />
         </button>
       </div>
@@ -60,10 +60,10 @@ export function ClientPicker({ value, onChange }: { value: PickedClient | null; 
               key={r.id}
               type="button"
               onClick={() => onChange(r)}
-              className="flex w-full justify-between px-3 py-2 text-start text-[14.5px] hover:bg-sage-soft/50"
+              className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2 text-start text-[14.5px] hover:bg-sage-soft/50"
             >
-              <span>{r.full_name}</span>
-              <span className="ltr text-ink-2">{formatPhone(r.phone)}</span>
+              <span className="truncate">{r.full_name}</span>
+              <span className="ltr shrink-0 whitespace-nowrap text-ink-2">{formatPhone(r.phone)}</span>
             </button>
           ))}
           {results.length === 0 && (
